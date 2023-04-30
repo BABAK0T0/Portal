@@ -5,6 +5,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import firefliesVertexShader from "./shaders/fireflies/vertex.glsl";
 import firefliesFragmentShader from "./shaders/fireflies/fragment.glsl";
+import portalVertexShader from "./shaders/portal/vertex.glsl";
+import portalFragmentShader from "./shaders/portal/fragment.glsl";
 
 /**
  * Base
@@ -12,6 +14,8 @@ import firefliesFragmentShader from "./shaders/fireflies/fragment.glsl";
 // Debug
 const debugObject = {
   clearColor: "#19001f",
+  portalColorStart: "#f59261",
+  portalColorEnd: "#ffffff",
 };
 const gui = new dat.GUI({
   width: 400,
@@ -51,8 +55,24 @@ bakedTextutre.flipY = false;
 bakedTextutre.encoding = THREE.sRGBEncoding;
 
 const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTextutre });
-const portalLightMaterial = new THREE.MeshBasicMaterial({ color: 0xe6a483 });
 const poleLightMaterial = new THREE.MeshBasicMaterial({ color: 0x918cff });
+const portalLightMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0 },
+    uColorStart: { value: new THREE.Color(debugObject.portalColorStart) },
+    uColorEnd: { value: new THREE.Color(debugObject.portalColorEnd) },
+  },
+  vertexShader: portalVertexShader,
+  fragmentShader: portalFragmentShader,
+});
+gui.addColor(debugObject, "portalColorStart").onChange(() => {
+  portalLightMaterial.uniforms.uColorStart.value.set(
+    debugObject.portalColorStart
+  );
+});
+gui.addColor(debugObject, "portalColorEnd").onChange(() => {
+  portalLightMaterial.uniforms.uColorEnd.value.set(debugObject.portalColorEnd);
+});
 
 gltfLoader.load("portal.glb", (gltf) => {
   const bakedMesh = gltf.scene.children.find((child) => child.name === "baked");
@@ -180,8 +200,8 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.setClearColor(debugObject.clearColor);
+renderer.outputEncoding = THREE.sRGBEncoding;
 
 /**
  * Animate
@@ -193,6 +213,7 @@ const tick = () => {
 
   // Update materials
   firefliesMaterial.uniforms.uTime.value = elapsedTime;
+  portalLightMaterial.uniforms.uTime.value = elapsedTime;
 
   // Update controls
   controls.update();
