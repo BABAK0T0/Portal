@@ -14,8 +14,9 @@ import portalFragmentShader from "./shaders/portal/fragment.glsl";
 // Debug
 const debugObject = {
   clearColor: "#19001f",
-  portalColorStart: "#f59261",
-  portalColorEnd: "#ffffff",
+  portalColorStart: "#f58d61",
+  portalColorEnd: "#fff4f0",
+  polelightColor: "#fff4f0",
 };
 const gui = new dat.GUI({
   width: 400,
@@ -55,8 +56,11 @@ bakedTextutre.flipY = false;
 bakedTextutre.encoding = THREE.sRGBEncoding;
 
 const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTextutre });
-const poleLightMaterial = new THREE.MeshBasicMaterial({ color: 0x918cff });
+const poleLightMaterial = new THREE.MeshBasicMaterial({
+  color: debugObject.polelightColor,
+});
 const portalLightMaterial = new THREE.ShaderMaterial({
+  side: THREE.DoubleSide,
   uniforms: {
     uTime: { value: 0 },
     uColorStart: { value: new THREE.Color(debugObject.portalColorStart) },
@@ -65,14 +69,30 @@ const portalLightMaterial = new THREE.ShaderMaterial({
   vertexShader: portalVertexShader,
   fragmentShader: portalFragmentShader,
 });
-gui.addColor(debugObject, "portalColorStart").onChange(() => {
-  portalLightMaterial.uniforms.uColorStart.value.set(
-    debugObject.portalColorStart
-  );
-});
-gui.addColor(debugObject, "portalColorEnd").onChange(() => {
-  portalLightMaterial.uniforms.uColorEnd.value.set(debugObject.portalColorEnd);
-});
+gui
+  .addColor(debugObject, "polelightColor")
+  .onChange(() => {
+    poleLightMaterial.color.set(debugObject.polelightColor);
+  })
+  .name("Polelights Color");
+
+gui
+  .addColor(debugObject, "portalColorStart")
+  .onChange(() => {
+    portalLightMaterial.uniforms.uColorStart.value.set(
+      debugObject.portalColorStart
+    );
+  })
+  .name("Portal Color Outer");
+
+gui
+  .addColor(debugObject, "portalColorEnd")
+  .onChange(() => {
+    portalLightMaterial.uniforms.uColorEnd.value.set(
+      debugObject.portalColorEnd
+    );
+  })
+  .name("Portal Color Inner");
 
 gltfLoader.load("portal.glb", (gltf) => {
   const bakedMesh = gltf.scene.children.find((child) => child.name === "baked");
@@ -99,7 +119,7 @@ gltfLoader.load("portal.glb", (gltf) => {
  */
 //Geometry
 
-const firefliesCount = 50;
+const firefliesCount = 100;
 const positionArray = new Float32Array(firefliesCount * 3);
 const scaleArray = new Float32Array(firefliesCount);
 
