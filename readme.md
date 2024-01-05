@@ -1,16 +1,7 @@
-# Three.js Journey
+# BLENDER PORTAL
 
-## Setup
-Download [Node.js](https://nodejs.org/en/download/).
-Run this followed commands:
+A portal made with blender and threejs. [live demo](https://babakoto-portal.vercel.app/)
 
-``` bash
-# Install dependencies (only the first time)
-npm install
+Exercice from [threejs-journey](https://threejs-journey.xyz/) by [Bruno Simon](https://github.com/brunosimon) to learn [three.js](https://threejs.org/)
 
-# Run the local server at localhost:8080
-npm run dev
-
-# Build for production in the dist/ directory
-npm run build
-```
+![Blender Portal](./portal.png "Blender Portal")
